@@ -1,0 +1,31 @@
+# This Python file uses the following encoding: utf-8
+import sys
+from pathlib import Path
+
+import sys
+import os
+from PySide2.QtGui import QGuiApplication
+from PySide2.QtQml import QQmlApplicationEngine
+
+from PySide2.QtCore import QObject, Slot, Signal, QTimer
+
+class MainWindow(QObject):
+    def __init__(self):
+        QObject.__init__(self)
+        self.serial_port = QSerialPort()
+        self.serial_port.setBaudRate(115200, QSerialPort.Direction.AllDirections)
+        self.serial_port.readyRead.connect(self.receive_serial_data)
+
+
+if __name__ == "__main__":
+    app = QGuiApplication(sys.argv)
+    main = MainWindow()
+    engine = QQmlApplicationEngine()
+    engine.rootContext().setContextProperty("backend", main)
+    engine.load(os.path.join(os.path.dirname(__file__), "main.qml"))
+
+    main.is_pending_connection = True
+
+    if not engine.rootObjects():
+        sys.exit(-1)
+    sys.exit(app.exec_())
